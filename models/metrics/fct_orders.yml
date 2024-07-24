@@ -1,0 +1,54 @@
+semantic_models:
+  - name: orders
+    defaults:
+      agg_time_dimension: order_date
+    description: |
+      Order fact table. This table’s grain is one row per order.
+    model: ref('fct_orders')
+    entities:
+    - name: order_id
+      type: primary
+    - name: customer_id
+      type: FOREIGN
+    dimensions:
+      - name: is_drink_order
+        type: categorical
+      - name: order_date
+        type: time
+        type_params:
+          time_granularity: day
+
+
+    measures:
+      - name: order_total
+        description: The total amount of each order
+        agg: sum
+      - name: order_count
+        expr: 1
+        agg: sum
+      - name: customers_with_orders
+        agg: count_distinct
+        expr: customer_id
+      - name: min_order_value
+        agg: min
+        expr: amount
+      - name: max_order_value
+        agg: max
+        expr: amount
+      - name: avg_order_value
+        agg: average
+        expr: amount
+
+metrics:
+  - name: order_total
+    description: "Sum of orders value"
+    type: simple
+    label: "order_total"
+    type_params:
+      measure: order_total
+  - name: order_count
+    description: "Number of orders"
+    type: simple
+    label: "order_count"
+    type_params:
+      measure: order_count
